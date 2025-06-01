@@ -1,0 +1,129 @@
+import React, { useState } from "react"; import { Card, CardContent } from "@/components/ui/card"; import { Button } from "@/components/ui/button"; import { ShoppingCart, Star, Info, MessageCircle, Calendar, LogIn, CreditCard, PackageSearch, LayoutDashboard, Tag, Shield } from "lucide-react";
+
+const products = [ { id: 1, name: "Hydrating Face Serum", priceNPR: 2999, discountPercent: 10, image: "https://via.placeholder.com/300x300?text=Face+Serum", rating: 4.5, description: "A lightweight serum that deeply hydrates and rejuvenates skin.", }, { id: 2, name: "Organic Lip Balm", priceNPR: 999, discountPercent: 5, image: "https://via.placeholder.com/300x300?text=Lip+Balm", rating: 4.2, description: "Natural and organic balm to keep your lips soft and nourished.", }, { id: 3, name: "Rejuvenating Night Cream", priceNPR: 3999, discountPercent: 20, image: "https://via.placeholder.com/300x300?text=Night+Cream", rating: 4.8, description: "Rich cream that works overnight to revitalize your skin.", }, ];
+
+const TAX_RATE = 0.13;
+
+export default function BeautyStore() { const [selectedProduct, setSelectedProduct] = useState(null); const [showMessageForm, setShowMessageForm] = useState(false); const [showBookingForm, setShowBookingForm] = useState(false); const [showLoginForm, setShowLoginForm] = useState(false); const [showPaymentForm, setShowPaymentForm] = useState(false); const [showTrackingForm, setShowTrackingForm] = useState(false); const [showDashboard, setShowDashboard] = useState(false); const [showAdminPanel, setShowAdminPanel] = useState(false); const [currency, setCurrency] = useState("NPR"); const [adminLoggedIn, setAdminLoggedIn] = useState(false); const [newProduct, setNewProduct] = useState({ name: '', priceNPR: '', discountPercent: '', image: '', description: '', rating: 0 });
+
+const convertPrice = (priceNPR) => { if (currency === "USD") return $${(priceNPR / 133).toFixed(2)}; return NPR ${priceNPR}; };
+
+const applyDiscount = (priceNPR, discountPercent) => { return Math.round(priceNPR * (1 - discountPercent / 100)); };
+
+const calculateTotalWithTax = (priceNPR, discountPercent) => { const discounted = applyDiscount(priceNPR, discountPercent); return NPR ${(discounted * (1 + TAX_RATE)).toFixed(0)}; };
+
+const handleProductUpload = () => { products.push({ ...newProduct, id: products.length + 1 }); setNewProduct({ name: '', priceNPR: '', discountPercent: '', image: '', description: '', rating: 0 }); };
+
+return ( <div className="p-6 max-w-7xl mx-auto"> <div className="flex justify-between items-center mb-6"> <h1 className="text-3xl font-bold text-center">Beauty Products & Services</h1> <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="border p-2 rounded" > <option value="NPR">NPR</option> <option value="USD">USD</option> </select> </div>
+
+{/* Action Buttons */}
+  <div className="flex justify-end mb-4 gap-4 flex-wrap">
+    <Button onClick={() => setShowLoginForm(true)} variant="outline" className="flex items-center gap-2">
+      <LogIn className="w-4 h-4" />
+      Login
+    </Button>
+    <Button onClick={() => setShowPaymentForm(true)} variant="outline" className="flex items-center gap-2">
+      <CreditCard className="w-4 h-4" />
+      Checkout
+    </Button>
+    <Button onClick={() => setShowTrackingForm(true)} variant="outline" className="flex items-center gap-2">
+      <PackageSearch className="w-4 h-4" />
+      Track Order
+    </Button>
+    <Button onClick={() => setShowDashboard(true)} variant="outline" className="flex items-center gap-2">
+      <LayoutDashboard className="w-4 h-4" />
+      Dashboard
+    </Button>
+    <Button onClick={() => setShowAdminPanel(true)} variant="destructive" className="flex items-center gap-2">
+      <Shield className="w-4 h-4" />
+      Admin Panel
+    </Button>
+  </div>
+
+  {showAdminPanel && (
+    <div className="bg-gray-100 border border-gray-300 p-4 rounded-lg mb-6">
+      {!adminLoggedIn ? (
+        <div>
+          <h2 className="text-lg font-bold mb-2">Admin Login</h2>
+          <input type="password" placeholder="Enter admin password" className="border p-2 w-full mb-2" onChange={(e) => e.target.value === 'admin123' && setAdminLoggedIn(true)} />
+          <p className="text-sm text-gray-500">Hint: password is 'admin123'</p>
+        </div>
+      ) : (
+        <div>
+          <h2 className="text-xl font-bold mb-4">Admin Panel</h2>
+          <ul className="space-y-2 mb-4">
+            <li>- 🛍 Manage Products</li>
+            <li>- 📦 View Orders</li>
+            <li>- 👥 Customer Messages</li>
+            <li>- 📅 Manage Bookings</li>
+            <li>- 💸 Discount Settings</li>
+          </ul>
+          <h3 className="text-lg font-semibold mb-2">Upload New Product</h3>
+          <input className="border p-2 w-full mb-2" placeholder="Product Name" value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
+          <input className="border p-2 w-full mb-2" placeholder="Image URL" value={newProduct.image} onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })} />
+          <input className="border p-2 w-full mb-2" placeholder="Price (NPR)" value={newProduct.priceNPR} onChange={(e) => setNewProduct({ ...newProduct, priceNPR: Number(e.target.value) })} />
+          <input className="border p-2 w-full mb-2" placeholder="Discount %" value={newProduct.discountPercent} onChange={(e) => setNewProduct({ ...newProduct, discountPercent: Number(e.target.value) })} />
+          <textarea className="border p-2 w-full mb-2" placeholder="Description" value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} />
+          <input className="border p-2 w-full mb-2" placeholder="Rating (0-5)" value={newProduct.rating} onChange={(e) => setNewProduct({ ...newProduct, rating: Number(e.target.value) })} />
+          <Button onClick={handleProductUpload}>Upload Product</Button>
+        </div>
+      )}
+    </div>
+  )}
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    {products.map((product) => {
+      const discountedPrice = applyDiscount(product.priceNPR, product.discountPercent);
+
+      return (
+        <Card key={product.id} className="rounded-2xl shadow-md relative">
+          {product.discountPercent > 0 && (
+            <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+              {product.discountPercent}% OFF
+            </div>
+          )}
+          <img src={product.image} alt={product.name} className="w-full h-64 object-cover rounded-t-2xl" />
+          <CardContent className="p-4">
+            <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
+            <p className="text-lg text-pink-600 mb-1">
+              {convertPrice(discountedPrice)}{' '}
+              <span className="line-through text-sm text-gray-400">
+                {product.discountPercent > 0 && convertPrice(product.priceNPR)}
+              </span>
+            </p>
+            <p className="text-sm text-gray-500 mb-2">with tax: {calculateTotalWithTax(product.priceNPR, product.discountPercent)}</p>
+            <div className="flex items-center mb-2">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-4 h-4 mr-1 ${i < Math.floor(product.rating) ? "text-yellow-500" : "text-gray-300"}`}
+                  fill={i < Math.floor(product.rating) ? "currentColor" : "none"}
+                />
+              ))}
+            </div>
+            <Button onClick={() => setSelectedProduct(product)} className="w-full flex items-center justify-center gap-2 mb-2">
+              <Info className="w-4 h-4" />
+              View Details
+            </Button>
+            <Button className="w-full flex items-center justify-center gap-2 mb-2">
+              <ShoppingCart className="w-4 h-4" />
+              Add to Cart
+            </Button>
+            <Button onClick={() => setShowMessageForm(true)} variant="outline" className="w-full flex items-center justify-center gap-2 mb-2">
+              <MessageCircle className="w-4 h-4" />
+              Message Us
+            </Button>
+            <Button onClick={() => setShowBookingForm(true)} variant="outline" className="w-full flex items-center justify-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Book a Massage
+            </Button>
+          </CardContent>
+        </Card>
+      );
+    })}
+  </div>
+</div>
+
+); }
+
+  
